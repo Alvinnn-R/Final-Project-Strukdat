@@ -1,9 +1,11 @@
-# Sistem Absensi Sekolah [FP Struktur Data]
+# Sistem Absensi Sekolah [FP Struktur Data F081]
 
 ## Deskripsi Proyek
+
 Final project ini berjudul **Sistem Absensi Sekolah** yang dirancang menggunakan konsep **Struktur Data** untuk mendemonstrasikan penerapan struktur seperti **Linked List**, **Queue**, dan **Tree** dalam pengelolaan data absensi siswa dan guru. Sistem ini mencatat absensi dengan efisien, memastikan siswa dan guru diabsen berdasarkan urutan, serta menampilkan data secara hierarkis.
 
 ## Kelompok 7
+
 Proyek ini dikembangkan oleh **Kelompok 7** dengan anggota:
 
 1. **Muhammad Irsyad Majid** (23081010162)
