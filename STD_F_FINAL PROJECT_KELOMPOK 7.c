@@ -6,8 +6,8 @@
 3. Tree : untuk membuat percabangan berdasarkan jenis pengguna, apakah seorang guru, siswa, atau staff*/
 
 int main() {
-	
-	printf("Hello Dika");
+
+	printf("Hello Irsyad");
 	printf("Hello World");
 
 	return 0;
