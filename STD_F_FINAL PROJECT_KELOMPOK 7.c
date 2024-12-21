@@ -67,8 +67,17 @@ void tambahSiswaManual(int id, char *nama) {
     newSiswa->id = id;
     strcpy(newSiswa->nama, nama);
 
-    newSiswa->next = headSiswa;
-    headSiswa = newSiswa;
+    if (headSiswa == NULL || headSiswa->id > id) {
+        newSiswa->next = headSiswa;
+        headSiswa = newSiswa;
+    } else {
+        Siswa *current = headSiswa;
+        while (current->next != NULL && current->next->id < id) {
+            current = current->next;
+        }
+        newSiswa->next = current->next;
+        current->next = newSiswa;
+    }
 }
 
 // Fungsi untuk inisialisasi data siswa
@@ -98,74 +107,52 @@ void tambahSiswa() {
         return;
     }
 
-    getchar(); // Membersihkan karakter newline di buffer
     printf("Masukkan Nama Siswa: ");
     fgets(newSiswa->nama, sizeof(newSiswa->nama), stdin);
     newSiswa->nama[strcspn(newSiswa->nama, "\n")] = '\0'; // Menghapus newline
 
-    newSiswa->next = headSiswa;
-    headSiswa = newSiswa;
+    if (headSiswa == NULL || headSiswa->id > newSiswa->id) {
+        newSiswa->next = headSiswa;
+        headSiswa = newSiswa;
+    } else {
+        Siswa *current = headSiswa;
+        while (current->next != NULL && current->next->id < newSiswa->id) {
+            current = current->next;
+        }
+        newSiswa->next = current->next;
+        current->next = newSiswa;
+    }
 
     printf("Data siswa berhasil ditambahkan!\n");
 }
 
 // Fungsi untuk menampilkan data siswa yang terurut berdasarkan ID
 void tampilkanSiswa() {
-	int i, j;
     if (headSiswa == NULL) {
         printf("Data siswa kosong!\n");
         return;
     }
 
-    // Hitung jumlah siswa
-    int jumlahSiswa = 0;
+    printf("ID\tNama\n");
     Siswa *current = headSiswa;
     while (current != NULL) {
-        jumlahSiswa++;
+        printf("%d\t%s\n", current->id, current->nama);
         current = current->next;
     }
-
-    // Salin data ke array
-    Siswa **arraySiswa = (Siswa **)malloc(jumlahSiswa * sizeof(Siswa *));
-    current = headSiswa;
-    for (i = 0; i < jumlahSiswa; i++) {
-        arraySiswa[i] = current;
-        current = current->next;
-    }
-
-    // Urutkan array berdasarkan ID (Bubble Sort)
-    for (i = 0; i < jumlahSiswa - 1; i++) {
-        for (j = 0; j < jumlahSiswa - i - 1; j++) {
-            if (arraySiswa[j]->id > arraySiswa[j + 1]->id) {
-                Siswa *temp = arraySiswa[j];
-                arraySiswa[j] = arraySiswa[j + 1];
-                arraySiswa[j + 1] = temp;
-            }
-        }
-    }
-
-    // Tampilkan data siswa yang sudah terurut
-    printf("ID\tNama\n");
-    for (i = 0; i < jumlahSiswa; i++) {
-        printf("%d\t%s\n", arraySiswa[i]->id, arraySiswa[i]->nama);
-    }
-
-    // Bebaskan memori array
-    free(arraySiswa);
 }
 
 void editSiswa() {
     int id;
     printf("Masukkan ID Siswa yang ingin diubah: ");
     scanf("%d", &id);
-    getchar(); // Membersihkan karakter newline di buffer
+    getchar();
 
     Siswa *current = headSiswa;
     while (current != NULL) {
         if (current->id == id) {
             printf("Masukkan Nama Baru: ");
             fgets(current->nama, sizeof(current->nama), stdin);
-            current->nama[strcspn(current->nama, "\n")] = '\0'; // Menghapus newline
+            current->nama[strcspn(current->nama, "\n")] = '\0';
             printf("Data siswa berhasil diubah!\n");
             return;
         }
@@ -250,7 +237,7 @@ void tampilkanTree(TreeNode *root) {
     tampilkanTree(root->right);
 }
 
-// Perubahan pada fungsi tambahMateriDanKelolaAbsensi untuk menyimpan absensi ke tree
+// Fungsi untuk proses absensi dan menambahkan ke tree
 void tambahMateriDanKelolaAbsensiTree() {
     Materi *newMateri = (Materi *)malloc(sizeof(Materi));
     int pilihan;
