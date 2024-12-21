@@ -7,68 +7,77 @@
 #define MAX 1000
 #define MAX_STR 1000
 
-struct node {
-    char histori [1000];
-    int data;
-    struct node* next;
+// Struktur untuk Tree (Guru dan Siswa)
+struct TreeNode {
+    char nama[MAX_STR];
+    char role[MAX_STR];   // Guru atau Siswa
+    int nomorInduk;       // Nomor induk
+    struct TreeNode* left;   // Guru
+    struct TreeNode* right;  // Siswa
 };
-typedef struct node node;
+typedef struct TreeNode TreeNode;
 
-struct node* buatNodeHistori (char* histori) {
-    struct node* nodeBaru = (struct node*)malloc(sizeof(struct node));
-    strcpy(nodeBaru->histori, histori);
-    nodeBaru->next = NULL;
-    return nodeBaru;
-}
-
-struct node* buatNodeData (int data) {
-    struct node* nodeBaru = (struct node*)malloc(sizeof(struct node));
-    nodeBaru->data = data;
-    nodeBaru->next = NULL;
-    return nodeBaru;
-}
-
-char queue [MAX][MAX_STR];
+// Queue untuk urutan absen
+char queue[MAX][MAX_STR];
 int depan = -1;
 int belakang = -1;
 int hitung = 1;
 
-void createQueue () {
+// Fungsi untuk membuat node Tree
+TreeNode* buatTreeNode(char* nama, char* role, int nomorInduk) {
+    TreeNode* newNode = (TreeNode*)malloc(sizeof(TreeNode));
+    strcpy(newNode->nama, nama);
+    strcpy(newNode->role, role);
+    newNode->nomorInduk = nomorInduk;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Fungsi untuk menambahkan data ke Tree berdasarkan peran
+void addToTree(TreeNode** root, char* nama, char* role, int nomorInduk) {
+    TreeNode* newNode = buatTreeNode(nama, role, nomorInduk);
+
+    if (*root == NULL) {
+        *root = newNode;
+        return;
+    }
+
+    // Jika nomor induk lebih kecil, masukkan ke kiri
+    if (nomorInduk < (*root)->nomorInduk) {
+        if ((*root)->left == NULL) {
+            (*root)->left = newNode;
+        } else {
+            addToTree(&(*root)->left, nama, role, nomorInduk);
+        }
+    }
+    // Jika nomor induk lebih besar, masukkan ke kanan
+    else if (nomorInduk > (*root)->nomorInduk) {
+        if ((*root)->right == NULL) {
+            (*root)->right = newNode;
+        } else {
+            addToTree(&(*root)->right, nama, role, nomorInduk);
+        }
+    }
+}
+
+// Fungsi untuk menampilkan Tree
+void displayTree(TreeNode* root, int level) {
+    if (root == NULL) return;
+    for (int i = 0; i < level; i++) printf("    ");
+    printf("- %s (%s) [Nomor Induk: %d]\n", root->nama, root->role, root->nomorInduk);
+    displayTree(root->left, level + 1);
+    displayTree(root->right, level + 1);
+}
+
+// Queue Functions
+void createQueue() {
     depan = belakang = -1;
     hitung = 1;
     printf("Pembuatan urutan absen berhasil\n");
 }
 
-void tambahData (node **head) {
-    int bil;
-    node *pNew;
-    node *pCur;
-
-    fflush(stdin);
-    printf("Kode Mahasiswa : ");
-    fflush(stdin);
-    scanf("%d", &bil);
-    pNew = buatNodeData(bil);
-
-    if (pNew != NULL) {
-        pNew->next = *head;
-        if (*head == NULL) {
-            pNew->next = pNew;
-        } else {
-            pCur = *head;
-            while (pCur->next != *head) {
-                pCur = pCur->next;
-            }
-            pCur->next = pNew;
-        }
-        *head = pNew;
-    } else {
-        printf("Kode tidak terdeteksi");
-        getch();
-    }
-}
-
-void enqueue (char *data) {
+// Menambahkan data ke queue
+void enqueue(char* data) {
     if ((belakang + 1) % MAX == depan) {
         printf("Queue penuh\n");
     } else {
@@ -81,37 +90,7 @@ void enqueue (char *data) {
     }
 }
 
-void push (struct node** top, char* histori) {
-    struct node* nodeBaru = buatNodeHistori(histori);
-    nodeBaru->next = *top;
-    *top = nodeBaru;
-    printf("Histori '%s' telah ditambahkan ke stack.\n", histori);
-}
-
-void pop (struct node** top) {
-    if (*top == NULL) {
-        printf("Stack kosong, tidak ada histori untuk dihapus.\n");
-        return;
-    }
-    struct node* temp = *top;
-    *top = (*top)->next;
-    printf("Histori '%s' telah dihapus dari stack.\n", temp->histori);
-    free(temp);
-}
-
-void tampilkanHistori (struct node* top) {
-    if (top == NULL) {
-        printf("Stack kosong, tidak ada histori. \n");
-        return;
-    }
-    struct node* temp = top;
-    printf("Histori dalam stack: \n");
-    while (temp != NULL) {
-        printf("%s\n", temp->histori);
-        temp = temp->next;
-    }
-}
-
+// Menampilkan isi Queue
 void tampilkanQueue() {
     if (depan == -1) {
         printf("Queue kosong\n");
@@ -124,56 +103,65 @@ void tampilkanQueue() {
     printf("%s\n", queue[belakang]);
 }
 
+// Fungsi untuk menambahkan data mahasiswa
+void tambahData(TreeNode** root) {
+    char nama[MAX_STR];
+    char peran[MAX_STR];
+    int nomorInduk;
+
+    fflush(stdin);
+    printf("Nama: ");
+    scanf(" %[^\n]", nama);
+
+    printf("Peran (Guru/Siswa): ");
+    scanf(" %[^\n]", peran);
+
+    printf("Nomor Induk: ");
+    scanf("%d", &nomorInduk);
+
+    // Masukkan nama dan peran ke dalam queue untuk absen
+    enqueue(nama);
+
+    // Masukkan data ke dalam tree berdasarkan peran dan nomor induk
+    addToTree(root, nama, peran, nomorInduk);
+}
+
 int main() {
-    node* head = NULL;
-    node* top = NULL;
+    TreeNode* root = NULL;  // Root untuk Tree (Guru/Siswa)
     int pilihan;
-    char histori [1000];
-    char dataQueue[MAX_STR];
+
     createQueue();
 
     do {
         printf("\nMenu\n");
-        printf("1. Tambah Data Siswa\n");
+        printf("1. Tambah Data Siswa/Guru\n");
         printf("2. Tampilkan Urutan Absensi\n");
-        printf("3. Tambah Histori\n");
-        printf("4. Tampilkan Histori\n");
-        printf("5. Hapus Histori\n");
-        printf("6. Keluar\n");
+        printf("3. Tampilkan Struktur Kehadiran (Tree)\n");
+        printf("4. Keluar\n");
         printf("Pilih opsi: ");
         scanf("%d", &pilihan);
 
         switch (pilihan) {
             case 1:
-            tambahData(&head);
-            printf("Nama Siswa untuk Queue: ");
-            scanf(" %[^\n]", dataQueue);
-            break;
+                tambahData(&root);
+                break;
 
             case 2:
-            tampilkanQueue();
-            break;
+                tampilkanQueue();
+                break;
 
             case 3:
-            printf("Masukkan histori: ");
-            scanf(" %[^\n]", histori);
-            push(&top, histori);
-            break;
+                printf("\nStruktur Kehadiran (Tree):\n");
+                displayTree(root, 0);
+                break;
 
             case 4:
-            tampilkanHistori(top);
-            break;
-
-            case 5:
-            pop(&top);
-            break;
-
-            case 6:
-            break;
+                break;
 
             default:
-            printf("Opsi tidak valid.\n");
+                printf("Opsi tidak valid.\n");
         }
-    } while (pilihan != 6);
+    } while (pilihan != 4);
+
     return 0;
 }
