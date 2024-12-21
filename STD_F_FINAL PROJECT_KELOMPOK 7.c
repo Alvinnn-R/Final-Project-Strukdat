@@ -69,7 +69,6 @@ void displayTree(TreeNode* root, int level) {
     displayTree(root->right, level + 1);
 }
 
-// Queue Functions
 void createQueue() {
     depan = belakang = -1;
     hitung = 1;
