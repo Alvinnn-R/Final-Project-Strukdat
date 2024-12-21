@@ -1,392 +1,418 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#ifdef _WIN32
+    #include <windows.h>
+    #define CLEAR "cls"
+#else
+    #include <unistd.h>
+    #define CLEAR "clear"
+#endif
 
-#define MAX 1000
-#define MAX_STR 100
+// Struktur untuk Linked List (Data Siswa)
+typedef struct Siswa {
+    int id;
+    char nama[50];
+    struct Siswa *next;
+} Siswa;
 
-// Struktur untuk Tree (Guru dan Siswa)
-struct TreeNode {
-    char nama[MAX_STR];
-    char peran[MAX_STR];
-    long long id;
-    struct TreeNode* left;
-    struct TreeNode* right;
-};
-typedef struct TreeNode TreeNode;
+Siswa *headSiswa = NULL;
 
-// Struktur untuk Linked List (Daftar Absen)
-struct LinkedListNode {
-    char nama[MAX_STR];
-    char peran[MAX_STR];
-    long long id;
-    struct LinkedListNode* next;
-};
-typedef struct LinkedListNode LinkedListNode;
+// Struktur untuk Linked List (Materi Absensi)
+typedef struct Materi {
+    char namaMateri[50];
+    char batasWaktu[50];
+    struct Materi *next;
+} Materi;
 
-// Struktur untuk Queue (Antrian)
-struct QueueMasuk {
-    char nama[MAX_STR];
-    char peran[MAX_STR];
-    long long id;
-};
-typedef struct QueueMasuk QueueMasuk;
+Materi *headMateri = NULL;
 
-QueueMasuk queue[MAX];
-int depan = -1;
-int belakang = -1;
+// Struktur untuk Queue (Absensi Kehadiran)
+#define MAX 100
+typedef struct Queue {
+    int front, rear;
+    int id[MAX];
+    char nama[MAX][50];
+    char status[MAX][50]; // Status kehadiran (hadir/tidak hadir/sakit)
+} Queue;
 
-// Head untuk Linked List
-LinkedListNode* head = NULL;
+Queue queue = {-1, -1};
 
-// Prototipe fungsi
-void tampilkanSubTree(TreeNode* root, int level);
+// Fungsi untuk membersihkan layar
+void clearScreen() {
+    system(CLEAR);
+}
 
-// Fungsi untuk membuat node Tree
-TreeNode* buatTreeNode(char* nama, char* peran, long long id) {
-    TreeNode* newNode = (TreeNode*)malloc(sizeof(TreeNode));
-    strcpy(newNode->nama, nama);
-    strcpy(newNode->peran, peran);
-    newNode->id = id;
+// Fungsi untuk memeriksa apakah ID sudah ada
+int cekIdSiswa(int id) {
+    Siswa *current = headSiswa;
+    while (current != NULL) {
+        if (current->id == id) {
+            return 1; // ID ditemukan
+        }
+        current = current->next;
+    }
+    return 0; // ID tidak ditemukan
+}
+
+// Fungsi untuk menambahkan siswa secara manual
+void tambahSiswaManual(int id, char *nama) {
+    if (cekIdSiswa(id)) {
+        printf("ID %d sudah ada, data tidak ditambahkan.\n", id);
+        return;
+    }
+
+    Siswa *newSiswa = (Siswa *)malloc(sizeof(Siswa));
+    newSiswa->id = id;
+    strcpy(newSiswa->nama, nama);
+
+    newSiswa->next = headSiswa;
+    headSiswa = newSiswa;
+}
+
+// Fungsi untuk inisialisasi data siswa
+void inisialisasiDataSiswa() {
+    tambahSiswaManual(10, "Rina Aulia");
+    tambahSiswaManual(9, "Dedi Sugianto");
+    tambahSiswaManual(8, "Siti Nurhaliza");
+    tambahSiswaManual(7, "Andi Wijaya");
+    tambahSiswaManual(6, "Lina Permata");
+    tambahSiswaManual(5, "Budi Prasetyo");
+    tambahSiswaManual(4, "Ayu Kartika");
+    tambahSiswaManual(3, "Eko Susilo");
+    tambahSiswaManual(2, "Rini Lestari");
+    tambahSiswaManual(1, "Fajar Rahmat");
+}
+
+// Fungsi Linked List untuk Data Siswa
+void tambahSiswa() {
+    Siswa *newSiswa = (Siswa *)malloc(sizeof(Siswa));
+    printf("Masukkan ID Siswa: ");
+    scanf("%d", &newSiswa->id);
+    getchar();
+
+    if (cekIdSiswa(newSiswa->id)) {
+        printf("ID %d sudah ada, data tidak ditambahkan.\n", newSiswa->id);
+        free(newSiswa);
+        return;
+    }
+
+    getchar(); // Membersihkan karakter newline di buffer
+    printf("Masukkan Nama Siswa: ");
+    fgets(newSiswa->nama, sizeof(newSiswa->nama), stdin);
+    newSiswa->nama[strcspn(newSiswa->nama, "\n")] = '\0'; // Menghapus newline
+
+    newSiswa->next = headSiswa;
+    headSiswa = newSiswa;
+
+    printf("Data siswa berhasil ditambahkan!\n");
+}
+
+// Fungsi untuk menampilkan data siswa yang terurut berdasarkan ID
+void tampilkanSiswa() {
+	int i, j;
+    if (headSiswa == NULL) {
+        printf("Data siswa kosong!\n");
+        return;
+    }
+
+    // Hitung jumlah siswa
+    int jumlahSiswa = 0;
+    Siswa *current = headSiswa;
+    while (current != NULL) {
+        jumlahSiswa++;
+        current = current->next;
+    }
+
+    // Salin data ke array
+    Siswa **arraySiswa = (Siswa **)malloc(jumlahSiswa * sizeof(Siswa *));
+    current = headSiswa;
+    for (i = 0; i < jumlahSiswa; i++) {
+        arraySiswa[i] = current;
+        current = current->next;
+    }
+
+    // Urutkan array berdasarkan ID (Bubble Sort)
+    for (i = 0; i < jumlahSiswa - 1; i++) {
+        for (j = 0; j < jumlahSiswa - i - 1; j++) {
+            if (arraySiswa[j]->id > arraySiswa[j + 1]->id) {
+                Siswa *temp = arraySiswa[j];
+                arraySiswa[j] = arraySiswa[j + 1];
+                arraySiswa[j + 1] = temp;
+            }
+        }
+    }
+
+    // Tampilkan data siswa yang sudah terurut
+    printf("ID\tNama\n");
+    for (i = 0; i < jumlahSiswa; i++) {
+        printf("%d\t%s\n", arraySiswa[i]->id, arraySiswa[i]->nama);
+    }
+
+    // Bebaskan memori array
+    free(arraySiswa);
+}
+
+void editSiswa() {
+    int id;
+    printf("Masukkan ID Siswa yang ingin diubah: ");
+    scanf("%d", &id);
+    getchar(); // Membersihkan karakter newline di buffer
+
+    Siswa *current = headSiswa;
+    while (current != NULL) {
+        if (current->id == id) {
+            printf("Masukkan Nama Baru: ");
+            fgets(current->nama, sizeof(current->nama), stdin);
+            current->nama[strcspn(current->nama, "\n")] = '\0'; // Menghapus newline
+            printf("Data siswa berhasil diubah!\n");
+            return;
+        }
+        current = current->next;
+    }
+    printf("Siswa dengan ID %d tidak ditemukan!\n", id);
+}
+
+void hapusSiswa() {
+    int id;
+    printf("Masukkan ID Siswa yang ingin dihapus: ");
+    scanf("%d", &id);
+
+    Siswa *current = headSiswa, *prev = NULL;
+    while (current != NULL) {
+        if (current->id == id) {
+            if (prev == NULL) {
+                headSiswa = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current);
+            printf("Data siswa berhasil dihapus!\n");
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    printf("Siswa dengan ID %d tidak ditemukan!\n", id);
+}
+
+// Struktur untuk Tree Node (Absensi Berdasarkan Materi)
+typedef struct TreeNode {
+    char namaMateri[50];
+    struct TreeNode *left, *right;
+    Queue absensi; // Absensi kehadiran untuk materi ini
+} TreeNode;
+
+TreeNode *root = NULL;
+
+// Fungsi untuk membuat node baru pada tree
+TreeNode *buatNodeTree(char *namaMateri) {
+    TreeNode *newNode = (TreeNode *)malloc(sizeof(TreeNode));
+    strcpy(newNode->namaMateri, namaMateri);
     newNode->left = newNode->right = NULL;
+    newNode->absensi.front = -1;
+    newNode->absensi.rear = -1;
     return newNode;
 }
 
-void tambahTree(TreeNode** root, char* nama, char* peran, long long id) {
-    if (*root == NULL) {
-        *root = buatTreeNode(nama, peran, id);
-        return;
-    }
-    if (strcmp(peran, "Guru") == 0) {
-        if ((*root)->left == NULL) {
-            (*root)->left = buatTreeNode(nama, peran, id);
-        } else {
-            tambahTree(&(*root)->left, nama, peran, id);
-        }
-    } else if (strcmp(peran, "Siswa") == 0) {
-        if ((*root)->right == NULL) {
-            (*root)->right = buatTreeNode(nama, peran, id);
-        } else {
-            tambahTree(&(*root)->right, nama, peran, id);
-        }
-    }
-}
-
-// Fungsi untuk menampilkan Tree terpisah menjadi Guru dan Siswa
-void tampilkanTree(TreeNode* root) {
+// Fungsi untuk menambahkan data ke tree
+TreeNode *tambahKeTree(TreeNode *root, char *namaMateri, Queue *absensi) {
     if (root == NULL) {
-        printf("Tree kosong.\n");
-        return;
+        TreeNode *newNode = buatNodeTree(namaMateri);
+        newNode->absensi = *absensi; // Salin absensi ke node
+        return newNode;
     }
 
-    printf("\nStruktur Kehadiran:\n");
-
-    if (root->left != NULL || strcmp(root->peran, "Guru") == 0) {
-        printf("Guru:\n");
-        if (root->left != NULL) {
-            tampilkanSubTree(root->left, 1);
-        } else if (strcmp(root->peran, "Guru") == 0) {
-            printf("- %s [ID: %lld]\n", root->nama, root->id);
-        }
+    if (strcmp(namaMateri, root->namaMateri) < 0) {
+        root->left = tambahKeTree(root->left, namaMateri, absensi);
+    } else if (strcmp(namaMateri, root->namaMateri) > 0) {
+        root->right = tambahKeTree(root->right, namaMateri, absensi);
     }
 
-    if (root->right != NULL || strcmp(root->peran, "Siswa") == 0) {
-        printf("\nSiswa:\n");
-        if (root->right != NULL) {
-            tampilkanSubTree(root->right, 1);
-        } else if (strcmp(root->peran, "Siswa") == 0) {
-            printf("- %s [ID: %lld]\n", root->nama, root->id);
-        }
-    }
-}
-
-// Fungsi untuk menampilkan subtree (rekursif)
-void tampilkanSubTree(TreeNode* root, int level) {
-    if (root == NULL) return;
-
-    for (int i = 0; i < level; i++) printf("    ");
-    printf("- %s [ID: %lld]\n", root->nama, root->id);
-
-    tampilkanSubTree(root->left, level + 1);
-    tampilkanSubTree(root->right, level + 1);
-}
-
-// Fungsi untuk memperbarui data di Tree
-void editTree(TreeNode* root, long long id, char* namaBaru, char* peranBaru) {
-    if (root == NULL) return;
-
-    if (root->id == id) {
-        strcpy(root->nama, namaBaru);
-        strcpy(root->peran, peranBaru);
-    }
-
-    editTree(root->left, id, namaBaru, peranBaru);
-    editTree(root->right, id, namaBaru, peranBaru);
-}
-
-// Fungsi untuk menghapus data dari Tree
-TreeNode* hapusTree(TreeNode* root, long long id) {
-    if (root == NULL) return NULL;
-
-    if (id < root->id) {
-        root->left = hapusTree(root->left, id);
-    } else if (id > root->id) {
-        root->right = hapusTree(root->right, id);
-    } else {
-        // Node ditemukan
-        if (root->left == NULL) {
-            TreeNode* temp = root->right;
-            free(root);
-            return temp;
-        } else if (root->right == NULL) {
-            TreeNode* temp = root->left;
-            free(root);
-            return temp;
-        }
-
-        // Node memiliki dua anak
-        TreeNode* temp = root->right;
-        while (temp->left != NULL) temp = temp->left;
-        root->id = temp->id;
-        strcpy(root->nama, temp->nama);
-        strcpy(root->peran, temp->peran);
-        root->right = hapusTree(root->right, temp->id);
-    }
     return root;
 }
 
-// Queue Functions
-void enqueue(char* nama, char* peran, long long id) {
-    if ((belakang + 1) % MAX == depan) {
-        printf("Queue penuh\n");
-        return;
+// Fungsi untuk menampilkan absensi dari tree secara in-order traversal
+void tampilkanTree(TreeNode *root) {
+    int i;
+    if (root == NULL) return;
+
+    tampilkanTree(root->left);
+
+    printf("\nMateri: %s\n", root->namaMateri);
+    printf("ID\tNama\t\t\t\tKehadiran\n");
+    printf("===============================================\n");
+    for (i = root->absensi.front; i <= root->absensi.rear; i++) {
+        printf("%d\t%-20s\t%s\n", root->absensi.id[i], root->absensi.nama[i], root->absensi.status[i]);
     }
-    if (depan == -1) depan = 0;
-    belakang = (belakang + 1) % MAX;
 
-    QueueMasuk newEntry;
-    strcpy(newEntry.nama, nama);
-    strcpy(newEntry.peran, peran);
-    newEntry.id = id;
-
-    queue[belakang] = newEntry;
-    printf("Data berhasil dimasukkan ke dalam queue.\n");
+    tampilkanTree(root->right);
 }
 
-void tampilkanQueue() {
-    if (depan == -1) {
-        printf("Queue kosong.\n");
-        return;
-    }
-    printf("Urutan absensi:\n");
-    for (int i = depan; i != belakang; i = (i + 1) % MAX) {
-        printf("- %s (%s) [ID: %lld]\n", queue[i].nama, queue[i].peran, queue[i].id);
-    }
-    printf("- %s (%s) [ID: %lld]\n", queue[belakang].nama, queue[belakang].peran, queue[belakang].id);
-}
-
-// Fungsi untuk memperbarui data di Queue
-void updateQueue(long long id, char* namaBaru, char* peranBaru) {
-    for (int i = depan; i != belakang; i = (i + 1) % MAX) {
-        if (queue[i].id == id) {
-            strcpy(queue[i].nama, namaBaru);
-            strcpy(queue[i].peran, peranBaru);
-            return;
-        }
-    }
-    if (queue[belakang].id == id) {
-        strcpy(queue[belakang].nama, namaBaru);
-        strcpy(queue[belakang].peran, peranBaru);
-    }
-}
-
-// Fungsi untuk menghapus data dari Queue
-void deleteFromQueue(long long id) {
-    if (depan == -1) return;
-
-    for (int i = depan; i != belakang; i = (i + 1) % MAX) {
-        if (queue[i].id == id) {
-            for (int j = i; j != belakang; j = (j + 1) % MAX) {
-                queue[j] = queue[(j + 1) % MAX];
-            }
-            belakang = (belakang - 1 + MAX) % MAX;
-            if (depan > belakang) depan = -1;
-            return;
-        }
-    }
-    if (queue[belakang].id == id) {
-        belakang = (belakang - 1 + MAX) % MAX;
-        if (depan > belakang) depan = -1;
-    }
-}
-
-// Linked List Functions
-void tambahLinkedList(char* nama, char* peran, long long id) {
-    LinkedListNode* newNode = (LinkedListNode*)malloc(sizeof(LinkedListNode));
-    strcpy(newNode->nama, nama);
-    strcpy(newNode->peran, peran);
-    newNode->id = id;
-    newNode->next = head;
-    head = newNode;
-    printf("Data berhasil ditambahkan ke daftar absen.\n");
-}
-
-void tampilkanLinkedList() {
-    LinkedListNode* temp = head;
-    if (temp == NULL) {
-        printf("Daftar absen kosong.\n");
-        return;
-    }
-    printf("Daftar Absen:\n");
-    while (temp != NULL) {
-        printf("- %s (%s) [ID: %lld]\n", temp->nama, temp->peran, temp->id);
-        temp = temp->next;
-    }
-}
-
-void editLinkedList(TreeNode** root, long long id, char* namaBaru, char* peranBaru) {
-    LinkedListNode* temp = head;
-    while (temp != NULL) {
-        if (temp->id == id) {
-            strcpy(temp->nama, namaBaru);
-            strcpy(temp->peran, peranBaru);
-            printf("Data berhasil diubah di Linked List.\n");
-
-            // Perbarui di Tree dan Queue
-            editTree(*root, id, namaBaru, peranBaru);
-            updateQueue(id, namaBaru, peranBaru);
-            return;
-        }
-        temp = temp->next;
-    }
-    printf("Data tidak ditemukan.\n");
-}
-
-void hapusLinkedList(TreeNode** root, long long id) {
-    LinkedListNode* temp = head;
-    LinkedListNode* prev = NULL;
-
-    while (temp != NULL && temp->id != id) {
-        prev = temp;
-        temp = temp->next;
-    }
-
-    if (temp == NULL) {
-        printf("Data tidak ditemukan.\n");
-        return;
-    }
-
-    if (prev == NULL) {
-        head = temp->next;
-    } else {
-        prev->next = temp->next;
-    }
-    free(temp);
-    printf("Data berhasil dihapus dari Linked List.\n");
-
-    // Hapus dari Tree dan Queue
-    *root = hapusTree(*root, id);
-    deleteFromQueue(id);
-}
-
-// Submenu untuk pengelolaan data
-void submenuPengelolaan(TreeNode** root) {
-    int subPilihan;
-    char nama[MAX_STR], peran[MAX_STR];
-    long long id;
-
-    system("cls");
-
-    do {
-        printf("\nSubmenu Data Siswa/Guru\n");
-        printf("1. Tambah Data\n");
-        printf("2. Tampilkan Data\n");
-        printf("3. Edit Data\n");
-        printf("4. Hapus Data\n");
-        printf("5. Kembali ke Menu Utama\n");
-        printf("Pilih opsi: ");
-        scanf("%d", &subPilihan);
-
-        switch (subPilihan) {
-            case 1:
-                printf("Nama: ");
-                scanf(" %[^\n]", nama);
-                printf("Peran (Guru/Siswa): ");
-                scanf(" %[^\n]", peran);
-                printf("Nomor Induk: ");
-                scanf("%lld", &id);
-
-                tambahLinkedList(nama, peran, id);
-                enqueue(nama, peran, id);
-                tambahTree(root, nama, peran, id);
-                break;
-
-            case 2:
-                tampilkanLinkedList();
-                break;
-
-            case 3:
-                printf("Masukkan ID untuk diedit: ");
-                scanf("%lld", &id);
-                printf("Nama baru: ");
-                scanf(" %[^\n]", nama);
-                printf("Peran baru: ");
-                scanf(" %[^\n]", peran);
-                editLinkedList(root, id, nama, peran);
-                break;
-
-            case 4:
-                printf("Masukkan ID untuk dihapus: ");
-                scanf("%lld", &id);
-                hapusLinkedList(root, id);
-                break;
-
-            case 5:
-                printf("Kembali ke menu utama.\n");
-                system("cls");
-                break;
-
-            default:
-                printf("Opsi tidak valid.\n");
-        }
-    } while (subPilihan != 5);
-}
-
-// Program utama
-int main() {
-    TreeNode* root = NULL;
+// Perubahan pada fungsi tambahMateriDanKelolaAbsensi untuk menyimpan absensi ke tree
+void tambahMateriDanKelolaAbsensiTree() {
+    Materi *newMateri = (Materi *)malloc(sizeof(Materi));
     int pilihan;
 
+    printf("\nPilih Materi Struktur Data:\n");
+    printf("1. Struct\n");
+    printf("2. Pointer\n");
+    printf("3. Linked List\n");
+    printf("4. Stack\n");
+    printf("5. Queue\n");
+    printf("6. Tree\n");
+    printf("Masukkan pilihan (1-6): ");
+    scanf("%d", &pilihan);
+
+    switch (pilihan) {
+        case 1: strcpy(newMateri->namaMateri, "Struct"); break;
+        case 2: strcpy(newMateri->namaMateri, "Pointer"); break;
+        case 3: strcpy(newMateri->namaMateri, "Linked List"); break;
+        case 4: strcpy(newMateri->namaMateri, "Stack"); break;
+        case 5: strcpy(newMateri->namaMateri, "Queue"); break;
+        case 6: strcpy(newMateri->namaMateri, "Tree"); break;
+        default: printf("Pilihan tidak valid!\n"); free(newMateri); return;
+    }
+
+    printf("Materi: %s\n", newMateri->namaMateri);
+
+    // Masukkan ke linked list materi
+    newMateri->next = headMateri;
+    headMateri = newMateri;
+
+    // Proses absensi siswa
+    if (headSiswa == NULL) {
+        printf("Tidak ada data siswa untuk melakukan absensi!\n");
+        return;
+    }
+
+    // Reset queue jika absensi baru dimulai
+    queue.front = -1;
+    queue.rear = -1;
+
+    Siswa *current = headSiswa;
+    while (current != NULL) {
+        if (queue.rear == MAX - 1) {
+            printf("Antrian penuh, tidak dapat menambahkan lebih banyak data.\n");
+            return;
+        }
+
+        if (queue.front == -1) {
+            queue.front = 0;
+        }
+
+        queue.rear++;
+        queue.id[queue.rear] = current->id;
+        strcpy(queue.nama[queue.rear], current->nama);
+
+        printf("ID: %d, Nama: %s\n", current->id, current->nama);
+        printf("Masukkan status kehadiran (hadir/tidak hadir/sakit): ");
+        scanf(" %49s", queue.status[queue.rear]);
+
+        current = current->next;
+    }
+
+    printf("Absensi selesai!\n");
+
+    // Tambahkan ke tree berdasarkan materi
+    root = tambahKeTree(root, newMateri->namaMateri, &queue);
+}
+
+// Fungsi Queue untuk Absensi Kehadiran
+void tampilkanKehadiran() {
+    int i;
+    if (queue.front == -1) {
+        printf("Antrian kehadiran kosong!\n");
+        return;
+    }
+
+    printf("\nData Absensi Berdasarkan Urutan:\n");
+    printf("ID\tNama\t\t\t\tKehadiran\n");
+    printf("===============================================\n");
+    for (i = queue.front; i <= queue.rear; i++) {
+        printf("%d\t%-20s\t%s\n", queue.id[i], queue.nama[i], queue.status[i]);
+    }
+}
+
+// Menu baru untuk menampilkan absensi berdasarkan materi
+void tampilkanKehadiranBerdasarkanMateri() {
+    if (root == NULL) {
+        printf("Tidak ada data absensi berdasarkan materi!\n");
+        return;
+    }
+
+    printf("\n=== Data Kehadiran Berdasarkan Materi ===\n");
+    tampilkanTree(root);
+}
+
+int main() {
+    // Inisialisasi data siswa
+    inisialisasiDataSiswa();
+
+    // Menu Program
+    int pilihan;
     do {
-        printf("\nMenu Utama\n");
-        printf("1. Data Siswa/Guru\n");
-        printf("2. Tampilkan Urutan Absensi (Queue)\n");
-        printf("3. Tampilkan Struktur Kehadiran (Tree)\n");
-        printf("4. Keluar\n");
-        printf("Pilih opsi: ");
+        clearScreen();
+        printf("=== Program Absensi Sekolah ===\n");
+        printf("1. Kelola Data Siswa (Linked List)\n");
+        printf("2. Kelola Absensi Sekolah (Linked List)\n");
+        printf("3. Menampilkan Absensi Kehadiran (Queue)\n");
+        printf("4. Menampilkan Kehadiran Berdasarkan Materi (Tree)\n");
+        printf("5. Keluar\n");
+        printf("Pilih menu: ");
         scanf("%d", &pilihan);
 
         switch (pilihan) {
-            case 1:
-                submenuPengelolaan(&root);
-                break;
+            case 1: {
+                int subMenu;
+                do {
+                    clearScreen();
+                    printf("=== Kelola Data Siswa ===\n");
+                    printf("1. Tambah Data Siswa\n");
+                    printf("2. Tampilkan Data\n");
+                    printf("3. Edit Data\n");
+                    printf("4. Hapus Data\n");
+                    printf("5. Kembali ke Menu Utama\n");
+                    printf("Pilih: ");
+                    scanf("%d", &subMenu);
+                    getchar();
 
+                    switch (subMenu) {
+                        case 1: tambahSiswa(); break;
+                        case 2: tampilkanSiswa(); break;
+                        case 3: editSiswa(); break;
+                        case 4: hapusSiswa(); break;
+                        case 5: break;
+                        default: printf("Pilihan tidak valid!\n");
+                    }
+                    printf("\nPress Enter to continue...");
+                    getchar();
+                } while (subMenu != 5);
+
+                break;
+            }
             case 2:
-                tampilkanQueue();
+                tambahMateriDanKelolaAbsensiTree();
                 break;
-
             case 3:
-                tampilkanTree(root);
+                tampilkanKehadiran();
+                getchar();
                 break;
-
             case 4:
-                printf("Keluar dari program.\n");
+                tampilkanKehadiranBerdasarkanMateri();
+                getchar();
                 break;
-
+            case 5:
+                printf("Terima kasih telah menggunakan program absensi sekolah.\n");
+                break;
             default:
-                printf("Opsi tidak valid.\n");
+                printf("Pilihan tidak valid!\n");
         }
-    } while (pilihan != 4);
+        printf("\nPress Enter to continue...");
+        getchar();
+        getchar();
+    } while (pilihan != 5);
 
     return 0;
 }
