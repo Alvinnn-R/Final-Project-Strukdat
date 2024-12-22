@@ -165,6 +165,7 @@ void hapusSiswa() {
     int id;
     printf("Masukkan ID Siswa yang ingin dihapus: ");
     scanf("%d", &id);
+    getchar();
 
     Siswa *current = headSiswa, *prev = NULL;
     while (current != NULL) {
