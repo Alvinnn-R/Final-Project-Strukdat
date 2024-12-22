@@ -82,16 +82,16 @@ void tambahSiswaManual(int id, char *nama) {
 
 // Fungsi untuk inisialisasi data siswa
 void inisialisasiDataSiswa() {
-    tambahSiswaManual(10, "Rina Aulia");
-    tambahSiswaManual(9, "Dedi Sugianto");
-    tambahSiswaManual(8, "Siti Nurhaliza");
-    tambahSiswaManual(7, "Andi Wijaya");
-    tambahSiswaManual(6, "Lina Permata");
-    tambahSiswaManual(5, "Budi Prasetyo");
-    tambahSiswaManual(4, "Ayu Kartika");
-    tambahSiswaManual(3, "Eko Susilo");
-    tambahSiswaManual(2, "Rini Lestari");
-    tambahSiswaManual(1, "Fajar Rahmat");
+    tambahSiswaManual(10, "Siti Nurhaliza");
+    tambahSiswaManual(9, "Rini Lestari");
+    tambahSiswaManual(8, "Rina Aulia");
+    tambahSiswaManual(7, "Lina Permata");
+    tambahSiswaManual(6, "Fajar Rahmat");
+    tambahSiswaManual(5, "Eko Susilo");
+    tambahSiswaManual(4, "Dedi Sugianto");
+    tambahSiswaManual(3, "Budi Prasetyo");
+    tambahSiswaManual(2, "Ayu Kartika");
+    tambahSiswaManual(1, "Andi Wijaya");
 }
 
 // Fungsi Linked List untuk Data Siswa
@@ -228,8 +228,8 @@ void tampilkanTree(TreeNode *root) {
     tampilkanTree(root->left);
 
     printf("\nMateri: %s\n", root->namaMateri);
-    printf("ID\tNama\t\t\t\tKehadiran\n");
-    printf("===============================================\n");
+    printf("ID\tNama\t\t    Kehadiran\n");
+    printf("======================================\n");
     for (i = root->absensi.front; i <= root->absensi.rear; i++) {
         printf("%d\t%-20s\t%s\n", root->absensi.id[i], root->absensi.nama[i], root->absensi.status[i]);
     }
@@ -242,27 +242,27 @@ void tambahMateriDanKelolaAbsensiTree() {
     Materi *newMateri = (Materi *)malloc(sizeof(Materi));
     int pilihan;
 
-    printf("\nPilih Materi Struktur Data:\n");
-    printf("1. Struct\n");
-    printf("2. Pointer\n");
-    printf("3. Linked List\n");
-    printf("4. Stack\n");
-    printf("5. Queue\n");
-    printf("6. Tree\n");
+    printf("\nPilih Mata Pelajaran:\n");
+    printf("1. Sistem Operasi\n");
+    printf("2. Struktur Data\n");
+    printf("3. Metode Numerik\n");
+    printf("4. Basis Data Lanjut\n");
+    printf("5. Statistik Komputasi\n");
+    printf("6. Pemrograman Lanjut\n");
     printf("Masukkan pilihan (1-6): ");
     scanf("%d", &pilihan);
 
     switch (pilihan) {
-        case 1: strcpy(newMateri->namaMateri, "Struct"); break;
-        case 2: strcpy(newMateri->namaMateri, "Pointer"); break;
-        case 3: strcpy(newMateri->namaMateri, "Linked List"); break;
-        case 4: strcpy(newMateri->namaMateri, "Stack"); break;
-        case 5: strcpy(newMateri->namaMateri, "Queue"); break;
-        case 6: strcpy(newMateri->namaMateri, "Tree"); break;
+        case 1: strcpy(newMateri->namaMateri, "Sistem Operasi"); break;
+        case 2: strcpy(newMateri->namaMateri, "Struktur Data"); break;
+        case 3: strcpy(newMateri->namaMateri, "Metode Numerik"); break;
+        case 4: strcpy(newMateri->namaMateri, "Basis Data Lanjut"); break;
+        case 5: strcpy(newMateri->namaMateri, "Statistik Komputasi"); break;
+        case 6: strcpy(newMateri->namaMateri, "Pemrograman Lanjut"); break;
         default: printf("Pilihan tidak valid!\n"); free(newMateri); return;
     }
 
-    printf("Materi: %s\n", newMateri->namaMateri);
+    printf("Pelajaran: %s\n", newMateri->namaMateri);
 
     // Masukkan ke linked list materi
     newMateri->next = headMateri;
@@ -294,7 +294,7 @@ void tambahMateriDanKelolaAbsensiTree() {
         strcpy(queue.nama[queue.rear], current->nama);
 
         printf("ID: %d, Nama: %s\n", current->id, current->nama);
-        printf("Masukkan status kehadiran (hadir/tidak hadir/sakit): ");
+        printf("Masukkan status kehadiran [Hadir (H) / Tidak hadir (A) / Sakit (S)]: ");
         scanf(" %49s", queue.status[queue.rear]);
 
         current = current->next;
@@ -315,8 +315,8 @@ void tampilkanKehadiran() {
     }
 
     printf("\nData Absensi Berdasarkan Urutan:\n");
-    printf("ID\tNama\t\t\t\tKehadiran\n");
-    printf("===============================================\n");
+    printf("ID\tNama\t\t    Kehadiran\n");
+    printf("======================================\n");
     for (i = queue.front; i <= queue.rear; i++) {
         printf("%d\t%-20s\t%s\n", queue.id[i], queue.nama[i], queue.status[i]);
     }
@@ -342,10 +342,10 @@ int main() {
     do {
         clearScreen();
         printf("=== Program Absensi Sekolah ===\n");
-        printf("1. Kelola Data Siswa (Linked List)\n");
-        printf("2. Kelola Absensi Sekolah (Linked List)\n");
-        printf("3. Menampilkan Absensi Kehadiran (Queue)\n");
-        printf("4. Menampilkan Kehadiran Berdasarkan Materi (Tree)\n");
+        printf("1. Kelola Data Siswa\n");
+        printf("2. Kelola Absensi Sekolah\n");
+        printf("3. Menampilkan Absensi Kehadiran\n");
+        printf("4. Menampilkan Kehadiran Berdasarkan Materi\n");
         printf("5. Keluar\n");
         printf("Pilih menu: ");
         scanf("%d", &pilihan);
