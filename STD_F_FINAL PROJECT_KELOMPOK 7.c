@@ -404,6 +404,7 @@ int main() {
         }
         printf("\nPress Enter to continue...");
         getchar();
+        getchar();
     } while (pilihan != 5);
 
     return 0;
