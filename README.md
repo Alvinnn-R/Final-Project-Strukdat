@@ -2,7 +2,7 @@
 
 ## Deskripsi Project
 
-Final project ini berjudul **Sistem Absensi Sekolah** yang dirancang menggunakan konsep **Struktur Data** untuk mendemonstrasikan penerapan struktur seperti **Linked List**, **Queue**, dan **Tree** dalam pengelolaan data absensi siswa dan guru. Sistem ini mencatat absensi dengan efisien, memastikan siswa dan guru diabsen berdasarkan urutan, serta menampilkan data secara hierarkis.
+Final project ini berjudul **Sistem Absensi Sekolah** yang dirancang menggunakan konsep **Struktur Data** untuk mendemonstrasikan penerapan struktur seperti **Linked List**, **Queue**, dan **Tree** dalam pengelolaan data absensi siswa. Sistem ini menyimpan dan mengelola data dan absensi siswa secara efisien, memastikan siswa diabsen berdasarkan urutan, serta menampilkan kehadiran/absensi siswa berdasarkan materi/mata pelajaran.
 
 ## Anggota Kelompok 7
 

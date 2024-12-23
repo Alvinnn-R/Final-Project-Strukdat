@@ -297,6 +297,11 @@ void tambahMateriDanKelolaAbsensiTree() {
         printf("ID: %d, Nama: %s\n", current->id, current->nama);
         printf("Masukkan status kehadiran [Hadir (H) / Tidak hadir (A) / Sakit (S)]: ");
         scanf(" %49s", queue.status[queue.rear]);
+        while (strcmp(queue.status[queue.rear], "H") != 0 && strcmp(queue.status[queue.rear], "A") != 0 && strcmp(queue.status[queue.rear], "S") != 0) {
+        printf("Input tidak valid! Masukkan hanya [H, A, S]: ");
+        scanf(" %49s", queue.status[queue.rear]);
+    }
+
 
         current = current->next;
     }
@@ -398,7 +403,6 @@ int main() {
                 printf("Pilihan tidak valid!\n");
         }
         printf("\nPress Enter to continue...");
-        getchar();
         getchar();
     } while (pilihan != 5);
 
