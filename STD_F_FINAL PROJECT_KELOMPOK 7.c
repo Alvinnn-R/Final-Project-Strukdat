@@ -326,11 +326,11 @@ void tampilkanKehadiran() {
 // Menu baru untuk menampilkan absensi berdasarkan materi
 void tampilkanKehadiranBerdasarkanMateri() {
     if (root == NULL) {
-        printf("Tidak ada data absensi berdasarkan materi!\n");
+        printf("Tidak ada data absensi berdasarkan mata pelajaran!\n");
         return;
     }
 
-    printf("\n=== Data Kehadiran Berdasarkan Materi ===\n");
+    printf("\n=== Data Kehadiran Berdasarkan Mata Pelajaran ===\n");
     tampilkanTree(root);
 }
 
@@ -346,7 +346,7 @@ int main() {
         printf("1. Kelola Data Siswa\n");
         printf("2. Kelola Absensi Sekolah\n");
         printf("3. Menampilkan Absensi Kehadiran\n");
-        printf("4. Menampilkan Kehadiran Berdasarkan Materi\n");
+        printf("4. Menampilkan Kehadiran Berdasarkan Mata Pelajaran\n");
         printf("5. Keluar\n");
         printf("Pilih menu: ");
         scanf("%d", &pilihan);
